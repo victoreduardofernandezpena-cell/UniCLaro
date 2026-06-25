@@ -1,6 +1,6 @@
 # UniClaro
 
-Web app mobile first con herramientas universitarias para notas, indice academico, faltas, estudio y tareas.
+Web app mobile herramientas universitarias para notas, indice academico, faltas, estudio y tareas
 
 ## Desarrollo
 
