@@ -418,13 +418,20 @@ function FinalGrade() {
 function AcademicIndex() {
   useTitle("Calculadora de índice académico | UniClaro");
   const [subjects, setSubjects] = useState<Subject[]>([{ id: uid(), name: "Materia 1", credits: "3", grade: "90" }]);
+  const [previousCredits, setPreviousCredits] = useState("0");
+  const [previousIndex, setPreviousIndex] = useState("0");
 
   const result = useMemo(() => {
     const valid = subjects.filter((subject) => number(subject.credits) > 0 && number(subject.grade) >= 0);
     const credits = valid.reduce((sum, subject) => sum + number(subject.credits), 0);
     const weighted = credits ? valid.reduce((sum, subject) => sum + number(subject.credits) * number(subject.grade), 0) / credits : 0;
-    return { credits, weighted, count: valid.length };
-  }, [subjects]);
+    const periodIndex = Math.min(4, Math.max(0, weighted / 25));
+    const prevCredits = Math.max(0, number(previousCredits));
+    const prevIndex = Math.min(4, Math.max(0, number(previousIndex)));
+    const totalCareerCredits = prevCredits + credits;
+    const accumulatedIndex = totalCareerCredits ? (prevIndex * prevCredits + periodIndex * credits) / totalCareerCredits : periodIndex;
+    return { credits, weighted, count: valid.length, periodIndex, prevCredits, accumulatedIndex, totalCareerCredits };
+  }, [previousCredits, previousIndex, subjects]);
 
   function update(id: string, field: keyof Subject, value: string) {
     setSubjects((items) => items.map((item) => (item.id === id ? { ...item, [field]: value } : item)));
@@ -433,7 +440,7 @@ function AcademicIndex() {
   return (
     <ToolPage
       title="Calculadora de índice académico"
-      description="Agrega materias, créditos y notas finales para obtener un promedio ponderado aproximado."
+      description="Calcula el índice del último período y estima el índice acumulado con tus créditos anteriores."
     >
       <section className="card formCard">
         <div className="rowHeader">
@@ -469,8 +476,31 @@ function AcademicIndex() {
       </section>
 
       <ResultCard>
+        <div className="indexSummary">
+          <article>
+            <span>Índice Último Período</span>
+            <strong>{fmt(result.periodIndex, 2)} de 4.0</strong>
+            <small>Diferencia entre 4.0: {fmt(4 - result.periodIndex, 2)}</small>
+          </article>
+          <article>
+            <span>Índice Acumulado</span>
+            <strong>{fmt(result.accumulatedIndex, 2)} de 4.0</strong>
+            <small>Diferencia entre 4.0: {fmt(4 - result.accumulatedIndex, 2)}</small>
+          </article>
+        </div>
+        <div className="inputGrid twoCols">
+          <label>
+            Créditos acumulados anteriores
+            <input type="number" min="0" value={previousCredits} onChange={(event) => setPreviousCredits(event.target.value)} />
+          </label>
+          <label>
+            Índice acumulado anterior
+            <input type="number" min="0" max="4" step="0.01" value={previousIndex} onChange={(event) => setPreviousIndex(event.target.value)} />
+          </label>
+        </div>
         <Metric label="Promedio ponderado" value={fmt(result.weighted)} />
-        <Metric label="Total de créditos" value={fmt(result.credits, 0)} />
+        <Metric label="Créditos del período" value={fmt(result.credits, 0)} />
+        <Metric label="Créditos acumulados totales" value={fmt(result.totalCareerCredits, 0)} />
         <Metric label="Cantidad de materias" value={`${result.count}`} />
         <p className="hint">Este cálculo es aproximado. La escala puede variar según tu universidad.</p>
       </ResultCard>

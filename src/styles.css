@@ -448,6 +448,40 @@ textarea:focus {
   text-align: right;
 }
 
+.indexSummary {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.indexSummary article {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.15rem 1rem;
+  padding: 0.95rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fbfcff;
+}
+
+.indexSummary span {
+  color: #003b7a;
+  font-size: 1.08rem;
+  font-weight: 900;
+}
+
+.indexSummary strong {
+  color: #ff4258;
+  font-size: 1.08rem;
+  white-space: nowrap;
+}
+
+.indexSummary small {
+  grid-column: 1 / -1;
+  color: #ff4258;
+  font-size: 0.9rem;
+  font-weight: 850;
+}
+
 .message,
 .errorBox {
   margin: 0;
@@ -570,6 +604,10 @@ textarea:focus {
   .task {
     grid-template-columns: 1fr auto;
     align-items: start;
+  }
+
+  .indexSummary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
